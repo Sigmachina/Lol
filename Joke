@@ -1,0 +1,21 @@
+```lua
+local Players = game:GetService("Players")
+
+local function onPlayerChatted(player, message)
+    if message == "привет" then
+        player:Kick("приветствую!")
+    elseif message == "как дела?" then
+        game:GetService("Chat"):Chat(player, "У меня все отлично, спасибо!")
+    elseif message == "пока" then
+        game:GetService("Chat"):Chat(player, "До свидания!")
+    else
+        game:GetService("Chat"):Chat(player, "Прости, я не понимаю тебя :(")
+    end
+end
+
+Players.PlayerAdded:Connect(function(player)
+    player.Chatted:Connect(function(message)
+        onPlayerChatted(player, message)
+    end)
+end)
+```
