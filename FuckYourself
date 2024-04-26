@@ -1,0 +1,53 @@
+```lua
+local ChatService = game:GetService("Chat")
+local mathParser = require(path.to.mathparser) -- путь к math-parser
+
+local variables = {}
+local history = {}
+
+local hints = {
+  ["SyntaxError"] = "Проверь, все ли скобки закрыты и правильно ли расставлены операторы.",
+  ["DivisionByZero"] = "Нельзя делить на ноль. Попробуй другое число.",
+}
+
+local function onChatted(speakerName, message)
+  -- Удаляем пробелы
+  message = string.gsub(message, "%s+", "")
+
+  -- Проверяем, есть ли присваивание переменной
+  local assignment = string.match(message, "(.-)=(.*)")
+  if assignment then
+    local variableName, value = assignment[1], assignment[2]
+    local parsedValue, err = mathParser:Parse(value)
+    if err then
+      ChatService:Chat(script.Parent, "Ошибка при присвоении переменной: " .. err)
+    else
+      variables[variableName] = parsedValue
+      ChatService:Chat(script.Parent, "Переменная " .. variableName .. " установлена в " .. variables[variableName])
+    end
+  else
+    -- Пробуем решить математическое выражение
+    local result, err = mathParser:Parse(message, variables)
+
+    if err then
+      if hints[err] then
+        ChatService:Chat(script.Parent, hints[err])
+      else
+        ChatService:Chat(script.Parent, "Не могу решить это выражение.")
+      end
+    else
+      -- Сохраняем результат в историю
+      table.insert(history, {message = message, result = result})
+
+      -- Отправляем результат и последние 3 вычисления
+      local historyString = "Последние вычисления:\n"
+      for i = math.max(#history - 2, 1), #history do
+        historyString = historyString .. history[i].message .. " = " .. history[i].result .. "\n"
+      end
+      ChatService:Chat(script.Parent, "Ответ: " .. result .. "\n" .. historyString)
+    end
+  end
+end
+
+ChatService.Chatted:Connect(onChatted)
+```
