@@ -1,0 +1,5 @@
+```lua
+local players = game:GetService("Players"):GetPlayers()
+for i, player in ipairs(players) do player.Character.HumanoidRootPart.BrickColor = BrickColor.new("Bright blue")
+end
+```
